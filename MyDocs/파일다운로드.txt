@@ -1,0 +1,186 @@
+[1] iTextSharp.LPGLv2.Core를 사용하여 HTML을 pdf파일로 저장하기       
+        [HttpPost]
+        public IActionResult CreatePaySlip([FromBody] List<TbPayPaymentInfoViewModel> pModel)
+        {
+
+            String userId    = HttpContext.Session.GetString("adminId");
+            String directory = ""; // DateTime.Now.ToString("yyyyMMddhhmmss");
+
+            //DownLoad path string
+            AppSettingModel configString = new AppSettingModel();
+            _configuration.GetSection("ConfigString").Bind(configString);
+
+            //down load path
+            String downPath = configString.RealWebRootPath + "/download/";
+
+
+            //Sender Email info string
+            AppSettingModel senderEmailString = new AppSettingModel();
+            _configuration.GetSection("SenderEmail").Bind(senderEmailString);
+
+            // create mapper
+            mapper = getMapper(_settings.AposConnection);
+
+            try
+            {
+
+                for (int i = 0; i < pModel.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        directory = pModel[i].abaFile;
+
+                        //down load directory
+                        //downPath = "wwwroot/download/";
+                        DirectoryInfo di = new DirectoryInfo(downPath + directory);
+
+                        if (!di.Exists)
+                        {
+                            di.Create();
+                        }
+                    }
+
+                    TbPayPaymentInfoViewModel param = new TbPayPaymentInfoViewModel();
+
+                    param.workerNo = pModel[i].workerNo;
+                    param.workerName = pModel[i].workerName;
+                    param.abaFile = pModel[i].abaFile;
+                    param.companyName = pModel[i].companyName;
+                    param.abn = pModel[i].abn;
+                    param.grossThisAmount = pModel[i].grossThisAmount;
+                    param.netThisAmount = pModel[i].netThisAmount;
+                    param.taxThisAmount = pModel[i].taxThisAmount;
+                    param.superThisAmount = pModel[i].superThisAmount;
+                    param.grossYtdAmount = pModel[i].grossYtdAmount;
+                    param.netYtdAmount = pModel[i].netYtdAmount;
+                    param.taxYtdAmount = pModel[i].taxYtdAmount;
+                    param.superYtdAmount = pModel[i].superYtdAmount;
+                    param.fromSlipDate = pModel[i].fromSlipDate;
+                    param.toSlipDate = pModel[i].toSlipDate;
+                    param.paymentSlipDate = pModel[i].paymentSlipDate;
+                    param.emailAddress = pModel[i].emailAddress;
+                    param.ccEmailAddress = pModel[i].ccEmailAddress;
+                    param.sendPaySlipMailYn = pModel[i].sendPaySlipMailYn;
+                    param.updateId = userId;
+
+                    String fileName = downPath + directory + @"\\" + pModel[i].workerNo + ".pdf";
+                    //String fileName = @"wwwroot/download/" + directory + "/" + pModel[i].workerNo + ".pdf";
+                    String html = "";
+
+                    if (pModel[i].workerTypeCode.Equals("W"))
+                    {
+                        html = getHtml4TransWorker(mapper, param);
+                    }
+                    else
+                    {
+                        html = getHtml4FullWorker(param);
+                    }
+
+                    //PDF File 
+                    var pdfFilePath = downPath +  directory + "/" + pModel[i].workerNo + ".pdf"; //PdaLGPLv2Util.GetOutputFileName();
+                    var stream = new FileStream(pdfFilePath, FileMode.Create);
+
+                    // create a StyleSheet
+                    var styles = new StyleSheet();
+                    // set the default font's properties
+                    //styles.LoadTagStyle(HtmlTags.BODY, "encoding", "Identity-H");
+                    //styles.LoadTagStyle(HtmlTags.BODY, HtmlTags.FONT, "Tahoma");
+                    //styles.LoadTagStyle(HtmlTags.BODY, "size", "16pt");
+
+                    //FontFactory.Register(PdaLGPLv2Util.GetTahomaFontPath());
+
+                    var unicodeFontProvider = FontFactoryImp.Instance;
+                    unicodeFontProvider.DefaultEmbedding = BaseFont.EMBEDDED;
+                    unicodeFontProvider.DefaultEncoding = BaseFont.IDENTITY_H;
+
+                    var props = new Hashtable
+                    {
+                        { "font_factory", unicodeFontProvider }
+                    };
+
+                    var document = new Document();
+                    PdfWriter.GetInstance(document, stream);
+                    document.AddAuthor(PdaLGPLv2Util.Author);
+                    document.Open();
+                    var objects = HtmlWorker.ParseToList(
+                        new StringReader(@html),
+                        styles,
+                        props
+                    );
+                    foreach (IElement element in objects)
+                    {
+                        document.Add(element);
+                    }
+
+                    document.Close();
+                    stream.Dispose();
+
+                    PdaLGPLv2Util.VerifyPdfFileIsReadable(pdfFilePath);
+
+                    if (param.sendPaySlipMailYn.Equals("Y"))
+                    {
+                        //email parameter setting
+                        SendEmailModel sendParam = new SendEmailModel();
+
+                        sendParam.subject = param.companyName;
+                        sendParam.body = "Please contact us immediately if you are unable to detach or download your Pay Slip.<br/>Thank you.";
+                        sendParam.receiverEmailAddress = "man4h@naver.com"; //param.emailAddress;    // param.emailAddress
+                        //sendParam.ccEmailAddress       = ""; // param.ccEmailAddress;  // param.ccEmailAddress
+                        sendParam.senderEmailAddress = senderEmailString.SenderMailAddress;
+                        sendParam.smtp = senderEmailString.SenderMailSmtpServer;
+                        sendParam.smtpPort = Convert.ToInt32(senderEmailString.SenderMailSmtpPort);
+                        sendParam.senderId = senderEmailString.SenderMailId;
+                        sendParam.serderPassWord = senderEmailString.SenderMailPassWord;
+                        sendParam.senderName = senderEmailString.SenderName;
+
+                        List<SendEmailModel> fileParams = new List<SendEmailModel>();
+
+                        SendEmailModel fileParam = new SendEmailModel();
+                        fileParam.attachmentFileName = fileName;
+                        fileParams.Add(fileParam);
+
+                        // send email
+                        EmailServices email = new EmailServices();
+                        email.sendEmail(sendParam, fileParams);
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { errorCode = "E", errorMessage = ex.Message });
+            }
+            finally
+            {
+
+            }
+
+            return Json(new { errorCode = "S", errorMessage = "", downPath = downPath + directory });
+        }
+
+
+  [2]   ASP.NET CORE URL을 통한 파일다운로드
+        ## using System.IO;
+        ## using System.Net;
+
+		WebClient wc = new WebClient();
+			
+		String path = "https://localhost:44312/";
+		String fileName = "1.pdf";
+			
+		String url = path + fileName;
+		String downPath = "C:\\TEST\\" + fileName;
+			
+		wc.DownloadFile(url, downPath);
+			
+		fileName = "2.pdf";
+		url = path + fileName;
+		downPath = "C:\\TEST\\" + fileName;
+		wc.DownloadFile(url, downPath);
+			
+		fileName = "3.pdf";
+		url = path + fileName;
+		downPath = "C:\\TEST\\" + fileName;
+		wc.DownloadFile(url, downPath);

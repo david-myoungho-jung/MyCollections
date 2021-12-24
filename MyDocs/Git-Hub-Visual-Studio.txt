@@ -1,0 +1,11 @@
+[1] GitHub extension for Visual Studio 설치
+    Tools > Get Tools and Features > Individual components(개별구성요소)
+     > Code tools > GitHub extension for visual studio 체크 후 설치
+
+[2] 충돌시
+   2.1 변경된 파일 Stage commit
+   2.2 push > 충돌 메시지
+   2.3 pull
+   2.4 충돌내역 merge
+   2.5 stage commit 
+   2.6 push

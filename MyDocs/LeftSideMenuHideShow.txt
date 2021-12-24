@@ -1,0 +1,12 @@
+1. css추가
+<style>
+    {#main-content.full-width {width: 100%;}}
+</style>
+
+2. hide
+   $("#divLeftMenu").hide();
+   $("#main-content"),addClass("full-width");
+
+3. show
+   $("#divLeftMenu").show();
+   $("#main-content"),removeClass();

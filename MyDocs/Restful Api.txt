@@ -1,0 +1,38 @@
+  [1]   restful api  »£√‚
+       1.1 GET
+           https://localhost:44312/Trans/PayWorkIfInfo/1234
+
+       1.2 POST
+                private string HttpPost(string url, string sData)
+                {
+                    string sRes = "";
+
+                    try
+                    {
+                        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(url));
+              
+                        request.Method = "POST";
+                  
+             
+                        var data = Encoding.UTF8.GetBytes(sData); 
+                        request.ContentType = "application/json";
+                
+                        request.ContentLength = data.Length;
+
+                        using (var stream = request.GetRequestStream())
+                        {
+                            stream.Write(data, 0, data.Length);
+                        }
+
+
+                        sRes = new StreamReader(request.GetResponse().GetResponseStream(), Encoding.GetEncoding("UTF-8"), true).ReadToEnd();
+                 
+                 
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+
+                    return sRes;
+                }

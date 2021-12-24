@@ -1,0 +1,19 @@
+[1] S3에 파일 저장
+
+1.1 AWSSDK Nuge Package에서 설치
+   
+
+
+[2] 객체Url을 통한 접근이 가능하게 처리
+    (https://aposapp.s3.ap-southeast-2.amazonaws.com/download/payroll/payslip/Employment_View.pdf)
+2.1 버킷을 선택한다
+2.2 권한 탭을 클릭한다
+2.3 버킷정책 편집 버튼을 클릭한다
+2.4 버킷정책을 추가한다
+       {
+        "Sid": "",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": ["s3:GetObject"],
+        "Resource": "arn:aws:s3:::aposapp/*"
+      }

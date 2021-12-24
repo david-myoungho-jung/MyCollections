@@ -1,0 +1,9 @@
+[1] CI/CD  Continuous Intergration/ Continuous Delivery
+  1.1 Merge -> Build -> Test
+  1.2  Continuous Delivery :  수동 배포
+  1.3  Continuous Deplyment : 자동 배포
+
+[2] 관련 Tools
+   2.1 Jenkins Buildkite
+   2.2 GitHub Actions
+   2.3 GitLab CI/CD

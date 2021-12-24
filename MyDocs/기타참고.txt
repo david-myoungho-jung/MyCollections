@@ -1,0 +1,14 @@
+  [1]   Apos Form -> Apos Admin 연결
+       1. userId
+       2. userPassWord
+       3. POST 방식 (PassWord에 +와 같은 특수문자가 포함된경우 GET방식에서 ' '으로 변환되어 전송됨)
+       4. 기존에 admin.apospro.com이 TAB으로 연결된 경우 해당 TAB에 다시 연결하기
+
+       window.open("http://admin.apospro.com/Login/LoginForm?userId=21000005&userPassWord=AQAAAAEAACcQAAAAEEWFNSVL/yOVRK/7OOYw12h7xRFyqrzcHzo3aSdcHfuL9FyFqyqC07uAWNrsVE1ULA==","AposAdmin","");
+
+       <form method="POST" id="frmMain" action="http://admin.apospro.com/Login/LoginForm">      
+               <input type="text" id="userId"  name="userId" value="21000005">
+               <input type="text" id="userPassWord" name="userPassWord" value="AQAAAAEAACcQAAAAEHxdw+2wYv1pgYxCNOFRtYYWKS3nuCFqq5yhfduMa/i6H3or">     
+               <input type="submit" value="Submit">      
+       </form>	
+

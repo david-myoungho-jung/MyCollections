@@ -1,0 +1,84 @@
+public ReturnViewModel Save(List<TbPayViewModel> pModel)
+        {
+            // create mapper
+            mapper = getMapper(_settings.AposConnection);
+
+            LogHistoryServices         logSvc = new LogHistoryServices();
+            TbCmnLogHistoryViewModel logModel = new TbCmnLogHistoryViewModel();
+            ////////////////////////////////////////////////////////////////////
+            // 작업로그를 남김
+            ////////////////////////////////////////////////////////////////////
+            logModel.customerId  = pModel[0].customerId;
+            logModel.createId    = pModel[0].createId;
+            logModel.logTypeCode = "1001";              //1001:Rate setting
+
+            ////////////////////////////////////////////////////////////////////
+            //작업시작 Log 추가                
+            ////////////////////////////////////////////////////////////////////
+            logModel.line = "1";
+            logModel.decription = "Rate setting start";
+            logSvc.InsertLogHistory(logModel);
+
+            try
+            {
+                mapper.BeginTransaction();
+
+                TbPayWorkInfoDao dao = new TbPayWorkInfoDao();
+                TbPayUnitCostInfoDao costDao = new TbPayUnitCostInfoDao();
+
+                for (int i = 0; i < pModel.Count; i++)
+                {
+                    
+                    string dataCnt = dao.readPayWorkInfoPayProcessingCount(pModel[i], mapper);
+                   
+                    if (dataCnt.Equals("0"))
+                    {
+                        mapper.RollBackTransaction();
+
+                        String errorMessage = "Confirmed or Aba filed data can not be update !!";
+
+                        ////////////////////////////////////////////////////////////////////
+                        //작업종료 Log 추가                            
+                        ////////////////////////////////////////////////////////////////////
+                        logModel.line       = "2";
+                        logModel.decription = errorMessage;
+                        logSvc.InsertLogHistory(logModel);
+
+                        return new ReturnViewModel { errorCode = "E", errorMessage = errorMessage };                        
+                    }
+
+                    //delete tb_pay_unit_cost_info
+                    costDao.deletePayUnitCostInfo(pModel[i], mapper);
+                    
+                    //insert tb_pay_unit_cost_info
+                    costDao.insertPayUnitCostInfo(pModel[i], mapper);
+                    
+                    //update tb_pay_work_info
+                    dao.updatePayWorkInfoRateSetting(pModel[i], mapper);                    
+                }
+
+                mapper.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                mapper.RollBackTransaction();
+                ////////////////////////////////////////////////////////////////////
+                //작업종료 Log 추가                    
+                ////////////////////////////////////////////////////////////////////
+                logModel.line = "2";
+                logModel.decription = "Rate setting failed";
+                logSvc.InsertLogHistory(logModel);
+
+                return new ReturnViewModel { errorCode = "E", errorMessage = ex.Message };
+            }
+
+            ////////////////////////////////////////////////////////////////////
+            //작업종료 Log 추가                
+            ////////////////////////////////////////////////////////////////////
+            logModel.line = "2";
+            logModel.decription = "Rate setting end";
+            logSvc.InsertLogHistory(logModel);
+
+            return new ReturnViewModel { errorCode = "S", errorMessage = "" };
+
+        }
