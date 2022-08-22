@@ -1,0 +1,164 @@
+﻿[1] DataTables
+   1.1 <th> °ø¹é¹®ÀÚ¸¦ ¹«½ÃÇÏ°í 1ÁÙ·Î Ç¥½ÃÇÏ±â
+        <style>           
+            table.dataTable thead th {
+                white-space: nowrap
+            }
+        </style>
+   1.2 ±×¸®µå³» ¹öÆ° 2°³ÀÌ»ó Ã³¸®
+            $("#MainTable").off("click").on("click", "button", function () {
+            var index = $(this).closest("tr").index();
+
+            //Edit¹öÆ° Å¬¸¯½Ã Ã³¸®
+            if (this.id == "btnEdit") {
+            } else {
+            }
+   1.3 Filtering Script
+     $(document).ready( function () {
+          var table = $('#example').DataTable({
+            "dom": '<"top"i>rt<"bottom"><"clear">'
+          });
+  
+          $('#mySearchButton').on( 'keyup click', function () {
+            table.search($('#mySearchText').val()).draw();
+          } );
+    } );
+
+   1.4 Add Row
+      //Model¿¡¼­ Á¤ÀÇÇÑ ÄÃ·³ °¹¼ö¸¸Å­ ¼ø¼­´ë·Î ÀÔ·ÂÇØÁØ´Ù
+     1.4.1 row.add
+      $('#MainTable').DataTable().row.add({
+                  "chk":"0"
+                 ,"siteCode":"S 123"
+                 ,"siteName":"S Name"
+                 ,"bizCode":"B 123"
+                 ,"bizName":"B Name" 
+                 ,"deleteYn":"N"
+                 ,"description":"des"
+                 ,"createId":"1"
+                 ,"updateId":"1"
+             }).draw(true);
+     1.4.2 remove row
+        $('#MainTable').DataTable().row(i).remove();
+        $('#MainTable').DataTable().draw();
+
+     1.4.3 modify row data
+        //DataTablesÀÇ bizCode°ª¸¸ 22000001À¸·Î º¯°æ È­¸éÀº º¯°æ¾øÀ½
+        $('#MainTable').DataTable().rows().data()[i].bizCode = '22000001';
+
+        //DataTablesÀÇ bizCode°ª 22000001À¸·Î º¯°æ ÈÄ È­¸éµµ °°ÀÌ º¯°æ
+        $('#MainTable').DataTable().cell(i, colIndex).data('22000001').draw();
+   1.5 Date Format   
+            columnDefs: [{
+                targets: 0,
+                render: function (data, type, row) {
+                    return moment(data).format('DD/MM/YYYY');
+                }
+            }]
+
+            "columns": [
+                    data: "unitCost",
+                    className: "dt-body-right",
+                    render: function (data, type, row, meta) {
+                                if ($("#MainTable").DataTable().data()[meta.row].subTaskCode == "") {
+                                    return '-';
+                                } else {
+                                    return data;
+                                }
+                    }
+            ]
+
+   1.6 Button name
+        1.6.1
+               {
+                    className: "dt-body-center",
+                    render: function (data, type, row, meta) {
+                        return '<button type="button" id="' + "btnEdit" + meta.row +'" class="btn btn-sm btn-block btn-outline-info">Edit</button>';                        
+                    }
+                }
+         1.6.2
+              if (btnName.indexOf("btnEdit") >= 0 ) {
+              }
+   1.7 DataTables Find
+
+             var rowIndexes = [];
+                        $("#MainTable").DataTable().rows(function (idx, data, node) {
+                            if (data.taskCode === "TC22000055001") {
+                                rowIndexes.push(idx);
+
+                                alert(idx);
+                            }
+
+                            return false;
+                        }); 
+    1.8 Datables td color change
+             $("#MainTable td").each(function() {
+    
+                  var index =  $(this).closest('tr').index();
+                  if ( index == 1 ) {
+                  $(this).css('color', 'green');
+                  }
+    
+            });
+
+    1.9 Datables Style
+           <style>
+
+                        .dataTablesStyle { /* dataTables 사이즈 */
+
+                        font-size : 12px;
+
+                        padding-left:5px;padding-right:5px;
+
+                        margin-top:5px;
+
+                        }
+
+                        .dataTablesStyle th{ /* dataTables 컬럼 헤더는 무조건 가운데 정열로 , columnDefs 와 상관없이 */
+
+                        text-align :center;
+
+                        }
+
+                        .dataTablesStyle thead tr{ /* dataTables 컬럼 헤더 색상 */
+
+                        background-color : #cecbcb;
+
+                        color : #3F3F46;
+
+                        }
+
+                        .table-striped>tbody>tr:nth-of-type(odd) { /* dataTables 교차행 색상 */
+
+                        background-color: #f9f9f9;
+
+                        }
+
+                        table.dataTable tbody>tr.selected, 
+
+                        table.dataTable tbody>tr>.selected { /* dataTables selected 배경색 */
+
+                        background-color: #3697D7 ; /* #08C; */
+
+                        }
+
+                        table.dataTable tbody tr.selected, 
+
+                        table.dataTable tbody th.selected, 
+
+                        table.dataTable tbody td.selected { /* dataTables selected 전경색 */
+
+                        color: white;
+
+                        }
+
+                        .dataTablesEditStyle {/* dataTables editer 색사 */
+
+                        padding: 3px 6px;
+
+                        border: 1px solid #0971CE;
+
+                        border-radius: 4px;
+
+                       }
+           </style>

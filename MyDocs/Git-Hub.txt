@@ -101,7 +101,7 @@
                 Delete EntityDao                
        5.3 git reset --hard 0c68f551bd725bb8cdf815100f394f28801899a3 > 해당 commit 이전상태로 복구 송
        
-    [6]로컬저장소를 강제로 서버로 전
+    [6]로컬저장소를 강제로 서버로 전송
        6.1 git push -f > 로컬 저장소의 내용을 강제로 서버로 전송 
        6.2 git commit -amend > commit 메시지를 변경할때 사용
        

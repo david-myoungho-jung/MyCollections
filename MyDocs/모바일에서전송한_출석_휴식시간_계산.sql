@@ -15,32 +15,114 @@
 "14"	"00:00:00"	"15:31:52"
 */
 
-SELECT x.type
-     , x.startbreak
-     , x.endbreak
+SELECT k.appdate
+     , k.empId
+	  , CONCAT(a.name,' ' , a.surname, '(', a.nameeng ,')') AS empName
+	  , SUM(totalWorkTime) AS totalWorkTime
+	  , SUM(totalBreakTme) AS totalBreakTme
+  FROM (
+SELECT x.appdate
+     , x.empId
+     , 0 AS totalWorkTime
+     , ROUND(SUM(TIME_TO_SEC(TIMEDIFF(x.endbreak,x.startbreak))/3600),2) AS totalBreakTme
   FROM (
 			SELECT 
-			      a.TYPE
+			      a.appdate
+			    , a.empId
+			    , a.TYPE
 				 , a.startbreak
 				 , IFNULL((SELECT MAX(s.endbreak) FROM idwq s 
-						      WHERE s.appdate = '20211111' 
-							     AND s.empid = '320380' 
+						      WHERE s.appdate =  a.appdate -- '20211111' 
+							     AND s.empid = a.empId -- '320380' 
 							  	  AND s.type ='14' 
 								  AND s.endbreak > a.startbreak 
 								  AND  s.endbreak < (SELECT MIN(k.startbreak ) 
 								                     FROM idwq k 
-														  WHERE  k.appdate = '20211111' 
-														    AND k.empid = '320380' 
+														  WHERE  k.appdate = a.appdate -- '20211111' 
+														    AND k.empid = a.empId -- '320380' 
 															 AND k.type ='13' 
 															 AND k.startbreak > a.startbreak )
 													    
 					 		  ), (SELECT MAX(w.endbreak) 
 								    FROM idwq w 
-									WHERE w.appdate = '20211111'  
-									  AND w.empid = '320380' 
+									WHERE w.appdate = a.appdate -- '20211111'  
+									  AND w.empid = a.empId -- '320380' 
 									  AND w.type ='14' )) AS endbreak
 		 	  FROM idwq a 
-		  	 WHERE a.appdate = '20211111' AND a.empid = '320380' AND a.type ='13' 
+		  	 WHERE a.appdate BETWEEN '20220501' AND '20220531' 			 
+				AND a.type ='13' 
 		  ) x
+GROUP BY x.appdate
+     , x.empId
+UNION ALL
+SELECT x.appdate
+     , x.empId
+     , ROUND(SUM(TIME_TO_SEC(TIMEDIFF(x.endtime,x.starttime))/3600),2) AS totalWorkTime
+     , 0 AS totalBreakTme
+  FROM (
+			SELECT 
+			      a.appdate
+			    , a.empId
+			    , a.TYPE
+				 , a.starttime
+				 , IFNULL((SELECT MAX(s.endtime) FROM idwq s 
+						      WHERE s.appdate =  a.appdate -- '20211111' 
+							     AND s.empid = a.empId -- '320380' 
+							  	  AND s.type ='12' 
+								  AND s.endtime > a.starttime 
+								  AND  s.endtime < (SELECT MIN(k.starttime ) 
+								                     FROM idwq k 
+														  WHERE  k.appdate = a.appdate -- '20211111' 
+														    AND k.empid = a.empId -- '320380' 
+															 AND k.type ='11' 
+															 AND k.starttime > a.starttime )
+													    
+					 		  ), (SELECT MAX(w.endtime) 
+								    FROM idwq w 
+									WHERE w.appdate = a.appdate -- '20211111'  
+									  AND w.empid = a.empId -- '320380' 
+									  AND w.type ='12' )) AS endtime
+		 	  FROM idwq a 
+		  	 WHERE a.appdate BETWEEN '20220501' AND '20220531' 			 
+				AND a.type ='11' 
+		  ) x
+GROUP BY x.appdate
+     , x.empId  ) k   
+, memp a
+WHERE k.empId = a.id 
+GROUP BY k.appdate
+     , k.empId     	  
 
-  
+SELECT x.appdate
+     , x.empId
+     , x.type
+     , x.startbreak
+     , x.endbreak
+  FROM (
+			SELECT 
+			     a.appdate
+			   , a.empId
+			   , a.TYPE
+				 , a.startbreak
+				 , IFNULL((SELECT MAX(s.endbreak) FROM idwq s 
+						      WHERE s.appdate =  a.appdate -- '20211111' 
+							     AND s.empid = a.empId -- '320380' 
+							  	  AND s.type ='14' 
+								  AND s.endbreak > a.startbreak 
+								  AND  s.endbreak < (SELECT MIN(k.startbreak ) 
+								                     FROM idwq k 
+														  WHERE  k.appdate = a.appdate -- '20211111' 
+														    AND k.empid = a.empId -- '320380' 
+															 AND k.type ='13' 
+															 AND k.startbreak > a.startbreak )
+													    
+					 		  ), (SELECT MAX(w.endbreak) 
+								    FROM idwq w 
+									WHERE w.appdate = a.appdate -- '20211111'  
+									  AND w.empid = a.empId -- '320380' 
+									  AND w.type ='14' )) AS endbreak
+		 	  FROM idwq a 
+		  	 WHERE a.appdate BETWEEN '20220501' AND '20220531' 
+			  -- AND a.empid = '320380' 
+				AND a.type ='13' 
+		  ) x

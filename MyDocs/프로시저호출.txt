@@ -1,0 +1,43 @@
+[1] 
+
+                // 집계 프로시저 호출
+                for (int i = 0; i < pModel.Count; i++)
+                {
+                    //T2:Work end time
+                    //B2:Break end time
+                    if (pModel[i].workTypeCode.Equals("T2") || pModel[i].workTypeCode.Equals("B2"))
+                    {
+                        
+                        // PROCEDURE AposApp.sp_payWorkInfo_totalWorkHour_taskBase
+                        // IN i_customerId   VARCHAR(8)
+                        // IN i_appDate      DATE
+                        // IN i_empId        VARCHAR(8)
+                        // IN i_contractorId VARCHAR(8)
+                        // IN i_taskCode     VARCHAR(12)
+                        // IN i_subTaskCode  VARCHAR(12)
+                        // IN i_cropCode     VARCHAR(12)
+                        // IN i_unitCode     VARCHAR(12)
+                        // IN i_siteCode     VARCHAR(11)
+                        /*  context.Database.ExecuteSqlRawAsync(
+                                 "exec sp_CreateUser @i_customerId, @i_appDate, @i_empId, @i_contractorId, @Id i_taskCode",
+                                 pModel[i].customerId,
+                                 pModel[i].appDate,
+                                 pModel[i].empId,
+                                 pModel[i].contractorId,
+                                 pModel[i].taskCode); */
+                        String connectString = "server=apos-form.chz4skaatdzz.ap-southeast-2.rds.amazonaws.com;port=3306;database=AposApp;uid=admin;password=oz101101!";
+
+
+                        using (MySqlConnection conn = new MySqlConnection(connectString))
+                        {
+                            String procName = "sp_payWorkInfo_totalWorkHour";
+
+                            MySqlCommand sqlCmd = new MySqlCommand(procName, conn);
+                            sqlCmd.CommandType = CommandType.StoredProcedure;
+                            //sqlCmd.Parameters.AddWithValue("@customerId", "pModel[i].customerId");
+                            conn.Open();
+                            sqlCmd.ExecuteNonQuery();
+                            conn.Close();
+                        }
+                    }
+                }

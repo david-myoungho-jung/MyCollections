@@ -1,0 +1,31 @@
+[1] DevOps 사용도구
+    1.1 젠킨스(Jenkins)
+    1.2 스플렁크(Splunk)
+    1.3 테라폼(Terraform)
+    1.4 나기오스(Nagios)
+    1.5 그라파나(Grafana)
+    1.6 프로메테우스(Prometheus)
+
+[2] 지속적인 통합(CI) 및 지속적인 배포(CD)의 모니터링 도구
+     2.1 센수(Sensu)
+     2.2 프로메테우스(Prometheus)
+     2.3 나기오스(Nagios) 
+
+[3] 데브옵스 알림 도구
+     3.1 슬랙(Slack)
+     3.2 페이저듀티(PagerDuty)
+     3.3 서비스나우(ServiceNow)
+
+[4] 서버리스 아키텍처
+     4.1 AWS 람다(AWS Lambda)
+     4.2 구글 클라우드 펑션(Google Cloud Functions)
+     4.3 애저 펑션(Azure Functions)
+     4.4 로직 앱스(Logic Apps)
+
+[5] IaC(Infrastructure as Code) 코드형 인프라
+    => 코드 형태로 인프라를 작성, 정의, 배포, 업데이트하는 것
+    5.1 테라폼(Terraform)은 Go로 프로그래밍 되어 있는 오픈 소스 도구로 현재 가장 많이 쓰이는 IaC 도구
+
+
+
+

@@ -1,0 +1,15 @@
+[1] EXCEL UnMerge 
+        Workbook wbk = new Aspose.Cells.Workbook("/payroll/invoice/mergingcells.xls");
+
+        // Create a Worksheet and get the first sheet.
+        Worksheet worksheet = wbk.Worksheets[0];
+
+        // Create a Cells object ot fetch all the cells.
+        Cells cells = worksheet.Cells;
+
+        // Unmerge the cells.
+        cells.UnMerge(5, 2, 2, 3);
+
+        // Save the file.
+        wbk.Save("/payroll/invoice/unmergingcells.out.xls");
+        33

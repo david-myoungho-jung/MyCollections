@@ -45,3 +45,102 @@
                     attach.ContentStream.Close();
                 }
         }
+
+ [2] 사용예제
+                //로컬 Server에 카피한 pdf파일을 이메일로 전송한다
+                String mailBody = "[RESEND] Please, contact us immediately if you are unable to detach or download your payslip.<br/> Thank you.";
+                                
+                SendEmailModel sendParam = new SendEmailModel()
+                {
+                    subject              = pModel.companyName,
+                    body                 = mailBody,
+                    receiverEmailAddress = "man4h@naver.com", //param.emailAddress;    // param.emailAddress                        
+                    senderEmailAddress   = senderEmailString.SenderMailAddress,
+                    smtp                 = senderEmailString.SenderMailSmtpServer,
+                    smtpPort             = Convert.ToInt32(senderEmailString.SenderMailSmtpPort),
+                    senderId             = senderEmailString.SenderMailId,
+                    serderPassWord       = senderEmailString.SenderMailPassWord,
+                    senderName           = senderEmailString.SenderName,
+                    replyEmailAddress    = "man4h@naver.com" // param.ccEmailAddress;
+                };
+
+                //첨부파일
+                List<SendEmailModel> fileParams = new List<SendEmailModel>();
+                SendEmailModel fileParam = new SendEmailModel();
+                fileParam.attachmentFileName = downFolderName + pModel.empId + ".pdf";
+                fileParams.Add(fileParam);
+
+                //CC Mail Address :  보낼때는 CC 처리하지 않음
+                List<SendEmailModel> ccParams = new List<SendEmailModel>();
+
+                EmailServices email = new EmailServices();
+
+                ReturnViewModel retViewModel = email.sendEmail(sendParam, fileParams, ccParams);
+
+        public ReturnViewModel sendEmail(SendEmailModel pModel, List<SendEmailModel> pFile, List<SendEmailModel> pCCMail)
+        {
+          
+            MailMessage mail = new MailMessage();
+
+            // Mail Object 초기화
+            mail.From = new MailAddress(pModel.senderEmailAddress, pModel.senderName, System.Text.Encoding.UTF8);                                               
+            
+            //메일 Parameter 세팅
+            mail.Subject = pModel.subject;                        
+            mail.Body = "<html><body>"+ pModel.body + "</body></html>";                        
+            mail.IsBodyHtml = true;                        
+            mail.SubjectEncoding = System.Text.Encoding.UTF8;
+            mail.BodyEncoding = System.Text.Encoding.UTF8;
+
+            //받는사람 
+            mail.To.Add(pModel.receiverEmailAddress);
+
+            //첨부파일
+            for (int i=0; i < pFile.Count; i++)
+            {
+                mail.Attachments.Add(new Attachment(new FileStream(pFile[i].attachmentFileName, FileMode.Open, FileAccess.Read), pFile[i].attachmentFileName));
+            }
+
+            //CC목록
+            for (int k=0; k < pCCMail.Count; k++)
+            {
+                mail.CC.Add(pCCMail[k].ccEmailAddress);                
+            }
+
+            //Reply
+            if (pModel.replyEmailAddress.Length > 0)
+            {
+                mail.ReplyToList.Add(pModel.replyEmailAddress);
+            }
+
+            //mail.Bcc.Add("nowonbun@gmail.com");
+
+            //smtp Server Address
+            //SmtpClient SmtpServer = new SmtpClient("smtp.naver.com");
+            SmtpClient SmtpServer = new SmtpClient(pModel.smtp);
+           
+            // smtp post
+            SmtpServer.Port = pModel.smtpPort;
+
+            // smtp Credential            
+            SmtpServer.Credentials = new System.Net.NetworkCredential(pModel.senderId, pModel.serderPassWord);
+
+            // SSL use yn
+            SmtpServer.EnableSsl = true;
+
+            try
+            {
+                // mail send...
+                SmtpServer.Send(mail);
+            } catch (Exception ex)
+            {                
+                return new ReturnViewModel { errorCode = "E", errorMessage = ex.Message };
+            } finally
+            {
+                SmtpServer.Dispose();
+                mail.Dispose();  //Dispose()를 안해줄경우 반복 처리시 오류가 발생한다
+            }
+          
+            return new ReturnViewModel { errorCode = "S", errorMessage = "" };
+
+        }

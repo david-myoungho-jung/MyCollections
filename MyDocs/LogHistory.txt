@@ -16,7 +16,7 @@ public ReturnViewModel Save(List<TbPayViewModel> pModel)
             //작업시작 Log 추가                
             ////////////////////////////////////////////////////////////////////
             logModel.line = "1";
-            logModel.decription = "Rate setting start";
+            logModel.description = "Rate setting start";
             logSvc.InsertLogHistory(logModel);
 
             try
@@ -41,7 +41,7 @@ public ReturnViewModel Save(List<TbPayViewModel> pModel)
                         //작업종료 Log 추가                            
                         ////////////////////////////////////////////////////////////////////
                         logModel.line       = "2";
-                        logModel.decription = errorMessage;
+                        logModel.description = errorMessage;
                         logSvc.InsertLogHistory(logModel);
 
                         return new ReturnViewModel { errorCode = "E", errorMessage = errorMessage };                        
@@ -66,7 +66,7 @@ public ReturnViewModel Save(List<TbPayViewModel> pModel)
                 //작업종료 Log 추가                    
                 ////////////////////////////////////////////////////////////////////
                 logModel.line = "2";
-                logModel.decription = "Rate setting failed";
+                logModel.description = "Rate setting failed";
                 logSvc.InsertLogHistory(logModel);
 
                 return new ReturnViewModel { errorCode = "E", errorMessage = ex.Message };
@@ -76,7 +76,7 @@ public ReturnViewModel Save(List<TbPayViewModel> pModel)
             //작업종료 Log 추가                
             ////////////////////////////////////////////////////////////////////
             logModel.line = "2";
-            logModel.decription = "Rate setting end";
+            logModel.description = "Rate setting end";
             logSvc.InsertLogHistory(logModel);
 
             return new ReturnViewModel { errorCode = "S", errorMessage = "" };
